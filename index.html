@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StegoSafe Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+/* 1. THE SETUP */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #050505;
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* Prevent scrolling */
+  font-family: 'Inter', sans-serif;
+  color: #e0e0e0;
+  position: relative;
+}
+
+/* Progress Bar */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: #00ff41;
+  width: 0%;
+  z-index: 1000;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px #00ff41;
+}
+
+.slide-container {
+  /* Full Screen Positioning */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  
+  /* Initial State (Hidden) */
+  transform: scale(0.95); /* Slight zoom out for effect */
+  opacity: 0;
+  visibility: hidden;
+  filter: blur(10px);
+  
+  /* Transition Effects */
+  transition: 
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.6s ease;
+
+  align-items: center;
+  background-color: #0a0a0a;
+  background-image: 
+    linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  border: none; /* Removed border for full screen */
+  border-radius: 0; /* Removed radius for full screen */
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding: 60px;
+}
+
+/* Active State (Visible) */
+.slide-container.active {
+  transform: scale(1);
+  opacity: 1;
+  visibility: visible;
+  filter: blur(0);
+  z-index: 10;
+}
+
+/* 1.1 DECORATIVE ELEMENTS */
+.slide-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #00ff41, #008f11);
+  box-shadow: 0 0 10px #00ff41;
+}
+
+.slide-container::after {
+  content: 'STEGOSAFE_V.1.0 // SECURE_CONNECTION';
+  position: absolute;
+  bottom: 20px;
+  right: 30px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 12px;
+  color: #333;
+}
+
+/* 2. TYPOGRAPHY */
+h1, h2, h3 {
+  font-family: 'Courier Prime', monospace;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: 72px;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+  letter-spacing: -2px;
+}
+
+h2.slide-title {
+  font-size: 48px;
+  color: #00ff41;
+  width: 100%;
+  text-align: left;
+  border-bottom: 2px solid #1a1a1a;
+  padding-bottom: 20px;
+  margin-bottom: 40px;
+}
+
+h3 {
+  font-size: 24px;
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+p, li, td, th {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #a0a0a0;
+}
+
+strong {
+  color: #00ff41;
+  font-weight: 600;
+}
+
+/* 3. LAYOUTS */
+.content-area {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex-grow: 1;
+  justify-content: center;
+  max-width: 1600px; /* Prevent text from getting too wide on huge screens */
+  margin: 0 auto; /* Center content */
+}
+
+/* Two Column */
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  width: 100%;
+  align-items: center;
+}
+
+.two-column ul {
+  list-style: none;
+  padding: 0;
+}
+
+.two-column li {
+  margin-bottom: 20px;
+  padding-left: 30px;
+  position: relative;
+}
+
+.two-column li::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: #00ff41;
+  font-family: 'Courier Prime', monospace;
+}
+
+/* Comparison Layout (Problem vs Solution) */
+.comparison-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  width: 100%;
+  height: 100%;
+}
+
+.comparison-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 30px;
+}
+
+.comparison-box.problem { border-top: 4px solid #ef4444; }
+.comparison-box.solution { border-top: 4px solid #00ff41; }
+
+.comparison-box ul { list-style: none; padding: 0; }
+.comparison-box li { margin-bottom: 15px; display: flex; align-items: center; gap: 15px; }
+
+/* Tiled Layout */
+.tiled-content {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.tile {
+  background: #111;
+  border: 1px solid #333;
+  padding: 30px;
+  flex: 1;
+  border-radius: 8px;
+  transition: transform 0.2s;
+}
+
+.tile:hover {
+  border-color: #00ff41;
+  transform: translateY(-5px);
+}
+
+.tile .icon {
+  font-size: 40px;
+  color: #00ff41;
+  margin-bottom: 20px;
+}
+
+/* Timeline */
+.timeline-layout {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
+  margin-top: 40px;
+}
+
+.timeline-layout::before {
+  content: '';
+  position: absolute;
+  top: 25px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #333;
+  z-index: 0;
+}
+
+.timeline-item {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  width: 22%;
+}
+
+.timeline-dot {
+  width: 50px;
+  height: 50px;
+  background: #0a0a0a;
+  border: 2px solid #00ff41;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px auto;
+  color: #00ff41;
+  font-weight: bold;
+}
+
+/* Table */
+.table-layout table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table-layout th {
+  text-align: left;
+  border-bottom: 2px solid #00ff41;
+  padding: 15px;
+  color: #fff;
+  font-family: 'Courier Prime', monospace;
+}
+
+.table-layout td {
+  padding: 15px;
+  border-bottom: 1px solid #333;
+}
+
+/* Code Block Look */
+.code-block {
+  background: #000;
+  border: 1px solid #333;
+  padding: 20px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 16px;
+  color: #00ff41;
+  border-radius: 4px;
+}
+
+/* Images */
+.image-wrapper {
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #333;
+  position: relative;
+}
+
+.image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(80%) contrast(120%);
+}
+
+.full-bg-image h1 {
+  background: rgba(0,0,0,0.7);
+  padding: 20px;
+  border: 1px solid #00ff41;
+}
+
+/* Bleed Image Layout - Updated for Full Screen */
+.slide-container.bleed-image-layout {
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+.slide-container.bleed-image-layout > .content-container { 
+    padding: 80px; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    height: 100%; 
+}
+.slide-container.bleed-image-layout > .image-container { 
+    height: 100%; 
+    width: 100%; 
+    overflow: hidden; 
+}
+.slide-container.bleed-image-layout img.bleed-image-side { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    filter: grayscale(100%) sepia(100%) hue-rotate(90deg) saturate(200%); 
+}
+
+/* Controls Hint */
+.controls-hint {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    color: #444;
+    font-family: 'Courier Prime', monospace;
+    font-size: 14px;
+    z-index: 100;
+}
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Slide 1: Title Slide -->
+<div class="slide-container full-bg-image active" id="slide1" style="background-image: url('https://images.unsplash.com/photo-1510915361408-05a8af4f69db?q=80&w=1920&auto=format&fit=crop'); background-size: cover; background-position: center;">
+    <div style="text-align: center; z-index: 2;">
+        <h1>STEGOSAFE</h1>
+        <p style="font-family: 'Courier Prime'; color: #00ff41; font-size: 28px; margin-top: 20px;">AI-Powered Steganography-as-a-Service</p>
+        <p style="margin-top: 40px; font-size: 18px; color: #fff;">Designed by OPH/K</p>
+    </div>
+    <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 1;"></div>
+</div>
+
+<!-- Slide 2: Definition -->
+<div class="slide-container" id="slide2">
+    <h2 class="slide-title">What is Steganography?</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <ul>
+                    <li><strong>Hidden in Plain Sight:</strong> The art of hiding information inside other information.</li>
+                    <li><strong>Invisible Secrecy:</strong> Unlike encryption which scrambles data, steganography conceals the existence of the message itself.</li>
+                    <li><strong>Digital Media:</strong> Commonly uses images, audio, or video files as "carriers".</li>
+                </ul>
+            </div>
+            <div class="code-block">
+                &gt; ORIGINAL_MSG = "SECRET"<br>
+                &gt; COVER_IMG = [10110100, ...]<br>
+                &gt; ENCRYPTING...<br>
+                &gt; EMBEDDING...<br>
+                &gt; OUTPUT = VACATION.PNG<br>
+                &gt; STATUS: UNDETECTABLE
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 3: Problem vs Solution -->
+<div class="slide-container" id="slide3">
+    <h2 class="slide-title">The Problem & The Solution</h2>
+    <div class="content-area">
+        <div class="comparison-container">
+            <div class="comparison-box problem">
+                <h3 style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> Traditional Tools</h3>
+                <ul>
+                    <li><i class="fa-solid fa-xmark" style="color: #ef4444;"></i> Require technical expertise</li>
+                    <li><i class="fa-solid fa-xmark" style="color: #ef4444;"></i> Complex command-line tools</li>
+                    <li><i class="fa-solid fa-xmark" style="color: #ef4444;"></i> No built-in encryption</li>
+                    <li><i class="fa-solid fa-xmark" style="color: #ef4444;"></i> Difficult to share securely</li>
+                </ul>
+            </div>
+            <div class="comparison-box solution">
+                <h3 style="color: #00ff41;"><i class="fa-solid fa-shield-halved"></i> StegoSafe</h3>
+                <ul>
+                    <li><i class="fa-solid fa-check" style="color: #00ff41;"></i> User-friendly web interface</li>
+                    <li><i class="fa-solid fa-check" style="color: #00ff41;"></i> Multiple encryption methods</li>
+                    <li><i class="fa-solid fa-check" style="color: #00ff41;"></i> Browser-based operation</li>
+                    <li><i class="fa-solid fa-check" style="color: #00ff41;"></i> Secure by design</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Key Features -->
+<div class="slide-container" id="slide4">
+    <h2 class="slide-title">Key Features</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-lock"></i></div>
+                <h3>Multi-Layer Security</h3>
+                <p>8 different encryption algorithms including AES-256 and key verification systems.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-image"></i></div>
+                <h3>LSB Steganography</h3>
+                <p>Least Significant Bit algorithm ensures messages are invisible to the human eye.</p>
+            </div>
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-user-shield"></i></div>
+                <h3>Security First</h3>
+                <p>Input validation, sanitization, XSS protection, and file type verification.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: Architecture -->
+<div class="slide-container bleed-image-layout" id="slide5">
+    <div class="content-container">
+        <h2 class="slide-title">System Architecture</h2>
+        <div class="content-area">
+            <p>A robust, decoupled architecture ensuring security and speed.</p>
+            <ul style="list-style: none; padding: 0; margin-top: 30px;">
+                <li style="margin-bottom: 20px;"><strong style="color: #fff;">1. Browser UI:</strong><br>User uploads image & key.</li>
+                <li style="margin-bottom: 20px;"><strong style="color: #fff;">2. Flask API:</strong><br>Handles routing & validation.</li>
+                <li style="margin-bottom: 20px;"><strong style="color: #fff;">3. Crypto Engine:</strong><br>Encrypts text data.</li>
+                <li style="margin-bottom: 20px;"><strong style="color: #fff;">4. Stego Module:</strong><br>Embeds bits into image pixels.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="image-container">
+        <!-- Image: Server/Network Diagram -->
+        <img class="bleed-image-side" src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1920&auto=format&fit=crop" alt="Web Application Architecture Diagram">
+    </div>
+</div>
+
+<!-- Slide 6: Encryption Methods -->
+<div class="slide-container" id="slide6">
+    <h2 class="slide-title">Supported Ciphers</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <h3>Educational</h3>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+                <p>• Caesar Cipher</p>
+                <p>• Vigenere Cipher</p>
+                <p>• Substitution</p>
+            </div>
+            <div class="tile">
+                <h3>Advanced</h3>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+                <p>• Hill Cipher</p>
+                <p>• Affine Cipher</p>
+                <p>• Playfair Cipher</p>
+            </div>
+            <div class="tile" style="border-color: #00ff41;">
+                <h3>Military-Grade</h3>
+                <hr style="border: 0; border-top: 1px solid #00ff41; margin: 15px 0;">
+                <p>• <strong>AES-256</strong></p>
+                <p>• Advanced Encryption Standard for top-secret data.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 7: How Encryption Works -->
+<div class="slide-container" id="slide7">
+    <h2 class="slide-title">Workflow: Encryption</h2>
+    <div class="content-area">
+        <div class="timeline-layout">
+            <div class="timeline-item">
+                <div class="timeline-dot">1</div>
+                <h3>Input</h3>
+                <p>User provides message, cover image, and secret key.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot">2</div>
+                <h3>Process</h3>
+                <p>Message is encrypted using chosen cipher & converted to binary.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot">3</div>
+                <h3>Embed</h3>
+                <p>LSB algorithm modifies image pixels invisibly.</p>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot">4</div>
+                <h3>Output</h3>
+                <p>Download secure PNG containing hidden message.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 8: LSB Explained -->
+<div class="slide-container bleed-image-layout" id="slide8">
+    <div class="content-container">
+        <h2 class="slide-title">LSB Steganography</h2>
+        <div class="content-area">
+            <p>We modify the <strong>Least Significant Bit</strong> of the pixel's color value.</p>
+            <div class="code-block" style="margin-top: 20px;">
+                RGB: (214, 171, 204)<br>
+                <span style="color: #666;">Red Bin: 1101011</span><strong style="color: #ef4444;">0</strong><br>
+                <br>
+                Hiding bit '1':<br>
+                <span style="color: #666;">Red Bin: 1101011</span><strong style="color: #00ff41;">1</strong><br>
+                <br>
+                New RGB: (215, 171, 204)<br>
+                <span style="font-size: 14px; color: #fff;">(Difference is invisible to human eye)</span>
+            </div>
+        </div>
+    </div>
+    <div class="image-container">
+        <!-- Image: Close up computer screen code -->
+        <img class="bleed-image-side" src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1920&auto=format&fit=crop" alt="Magnified pixel grid showing RGB values">
+    </div>
+</div>
+
+<!-- Slide 9: Security Features -->
+<div class="slide-container" id="slide9">
+    <h2 class="slide-title">Security Features</h2>
+    <div class="content-area">
+        <div class="two-column">
+            <div>
+                <h3><i class="fa-solid fa-shield-virus"></i> Input Validation</h3>
+                <p>Text sanitization (max 10k chars) and Key length limits prevent buffer overflows and injection attacks.</p>
+            </div>
+            <div>
+                <h3><i class="fa-solid fa-code"></i> XSS Protection</h3>
+                <p>Frontend uses `textContent` instead of `innerHTML` to prevent raw HTML injection during message display.</p>
+            </div>
+        </div>
+        <div class="two-column" style="margin-top: 40px;">
+             <div>
+                <h3><i class="fa-solid fa-key"></i> Key Verification</h3>
+                <p>Embedded verification markers ensure that incorrect keys are detected immediately before attempting decryption.</p>
+            </div>
+            <div>
+                 <h3><i class="fa-solid fa-file-image"></i> Image Constraints</h3>
+                <p>Strict file type validation (PNG/JPG) and automatic resizing to prevent DoS attacks via massive files.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 10: Technical Stack -->
+<div class="slide-container" id="slide10">
+    <h2 class="slide-title">Technical Stack</h2>
+    <div class="content-area">
+        <div class="tiled-content">
+            <div class="tile">
+                <i class="fa-brands fa-python" style="font-size: 50px; color: #306998;"></i>
+                <h3>Backend</h3>
+                <p>Python 3.9+<br>Flask (Web Framework)<br>Pillow (Image Processing)<br>PyCryptodome (AES)</p>
+            </div>
+            <div class="tile">
+                <i class="fa-brands fa-js" style="font-size: 50px; color: #F7DF1E;"></i>
+                <h3>Frontend</h3>
+                <p>HTML5 & CSS3<br>JavaScript (ES6)<br>Fetch API<br>Glassmorphism UI</p>
+            </div>
+            <div class="tile">
+                <i class="fa-solid fa-server" style="font-size: 50px; color: #fff;"></i>
+                <h3>Infrastructure</h3>
+                <p>RESTful API<br>JSON Response<br>Client-Server Model<br>Secure Session Handling</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 11: Competitor Comparison -->
+<div class="slide-container" id="slide11">
+    <h2 class="slide-title">Market Comparison</h2>
+    <div class="content-area">
+        <div class="table-layout">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th style="color: #00ff41;">StegoSafe</th>
+                        <th>OpenStego</th>
+                        <th>Steghide</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Web-based Platform</td>
+                        <td><i class="fa-solid fa-check" style="color: #00ff41;"></i> Yes</td>
+                        <td><i class="fa-solid fa-xmark" style="color: #ef4444;"></i> No</td>
+                        <td><i class="fa-solid fa-xmark" style="color: #ef4444;"></i> No</td>
+                    </tr>
+                    <tr>
+                        <td>Encryption Options</td>
+                        <td><i class="fa-solid fa-check" style="color: #00ff41;"></i> 8 Ciphers</td>
+                        <td><i class="fa-solid fa-circle-minus" style="color: #aaa;"></i> Limited</td>
+                        <td><i class="fa-solid fa-circle-minus" style="color: #aaa;"></i> Limited</td>
+                    </tr>
+                    <tr>
+                        <td>AES-256 Support</td>
+                        <td><i class="fa-solid fa-check" style="color: #00ff41;"></i> Yes</td>
+                        <td><i class="fa-solid fa-xmark" style="color: #ef4444;"></i> No</td>
+                        <td><i class="fa-solid fa-check" style="color: #00ff41;"></i> Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Modern UI/UX</td>
+                        <td><i class="fa-solid fa-check" style="color: #00ff41;"></i> Glassmorphism</td>
+                        <td><i class="fa-solid fa-xmark" style="color: #ef4444;"></i> Dated</td>
+                        <td><i class="fa-solid fa-terminal" style="color: #aaa;"></i> CLI Only</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 12: Use Cases -->
+<div class="slide-container bleed-image-layout" id="slide12">
+    <div class="content-container">
+        <h2 class="slide-title">Use Cases</h2>
+        <div class="content-area">
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 25px;">
+                    <h3><i class="fa-solid fa-user-secret" style="color: #00ff41;"></i> Secure Comm.</h3>
+                    <p>Send confidential messages for business or personal privacy without raising suspicion.</p>
+                </li>
+                <li style="margin-bottom: 25px;">
+                    <h3><i class="fa-solid fa-copyright" style="color: #00ff41;"></i> Watermarking</h3>
+                    <p>Protect intellectual property by embedding hidden copyright info to track image distribution.</p>
+                </li>
+                <li style="margin-bottom: 25px;">
+                    <h3><i class="fa-solid fa-graduation-cap" style="color: #00ff41;"></i> Education</h3>
+                    <p>A perfect tool for learning cryptography concepts and cybersecurity training.</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="image-container">
+        <!-- Image: Security Lock -->
+        <img class="bleed-image-side" src="https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1920&auto=format&fit=crop" alt="Digital Watermarking and Secure Document Concept">
+    </div>
+</div>
+
+<!-- Slide 13: Conclusion -->
+<div class="slide-container" id="slide13">
+    <div class="content-area" style="text-align: center; border: 2px solid #00ff41; padding: 60px; border-radius: 12px; background: rgba(0, 255, 65, 0.05);">
+        <h2 style="font-size: 60px; margin-bottom: 30px; color: #fff;">Why StegoSafe?</h2>
+        <p style="font-size: 28px; max-width: 800px; margin: 0 auto; color: #e0e0e0;">
+            Secure. Simple. Stealthy.<br><br>
+            We bridge the gap between complex security tools and user accessibility, providing military-grade protection in a modern web interface.
+        </p>
+    </div>
+</div>
+
+<!-- Slide 14: Q&A -->
+<div class="slide-container" id="slide14">
+    <div class="content-area" style="text-align: center;">
+        <h1 style="font-size: 100px; color: #00ff41;">Q&A</h1>
+        <p style="font-size: 32px; margin-top: 20px;">Thank You!</p>
+        <div style="margin-top: 60px; font-family: 'Courier Prime'; color: #666;">
+            <p>Designed by OPH/K</p>
+            <p>2025</p>
+        </div>
+    </div>
+</div>
+
+<div class="controls-hint">Navigate: Arrows / Space / PageUp/Down / Clicker</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const slides = document.querySelectorAll('.slide-container');
+        const progressBar = document.getElementById('progressBar');
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        function updateSlide(index) {
+            // Bounds check
+            if (index < 0) index = 0;
+            if (index >= totalSlides) index = totalSlides - 1;
+            
+            currentSlide = index;
+
+            // Update classes
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            // Update Progress Bar
+            const progress = totalSlides > 1 
+                ? (currentSlide / (totalSlides - 1)) * 100 
+                : 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Keyboard & Clicker Controls
+        document.addEventListener('keydown', (e) => {
+            // "Next" Actions
+            // Wireless pointers map "Next" to PageDown, ArrowDown, or sometimes '.' 
+            const nextKeys = ['ArrowRight', 'Space', 'Enter', 'PageDown', 'ArrowDown', 'N'];
+            
+            // "Previous" Actions
+            // Wireless pointers map "Prev" to PageUp, ArrowUp
+            const prevKeys = ['ArrowLeft', 'Backspace', 'PageUp', 'ArrowUp', 'P'];
+
+            // Check if key is in our lists
+            if (nextKeys.includes(e.key) || e.code === 'Space') {
+                e.preventDefault(); // Prevent scrolling for space/arrows
+                updateSlide(currentSlide + 1);
+            } else if (prevKeys.includes(e.key)) {
+                e.preventDefault();
+                updateSlide(currentSlide - 1);
+            }
+        });
+
+        // Click Controls (Right side = Next, Left side = Prev)
+        document.addEventListener('click', (e) => {
+            // Ignore clicks on links or interactive elements if you add them later
+            if(e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+
+            const clickX = e.clientX;
+            const screenWidth = window.innerWidth;
+            
+            if (clickX > screenWidth / 2) {
+                updateSlide(currentSlide + 1);
+            } else {
+                updateSlide(currentSlide - 1);
+            }
+        });
+
+        // Init
+        updateSlide(0);
+    });
+</script>
+
+</body>
+</html>
